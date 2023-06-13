@@ -2,7 +2,7 @@ class BitriseDenAgent < Formula
   desc "CLI for Bitrise DEN agent"
   homepage "https://github.com/bitrise-io/bitrise-den-agent"
   url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v.0.0.1-alpha/bitrise-den-agent.tar.gz"
-  sha256 "ef97d3a987df69209f696d1271502650ad31876b3d9fb8d206d1081f9ab3d69c"
+  sha256 "a7b33a2d62b62bb0d61e0dba2eaa4b7b6b6a67b38b0d4fe21210caa87998a491"
   license "MIT"
 
   def install
