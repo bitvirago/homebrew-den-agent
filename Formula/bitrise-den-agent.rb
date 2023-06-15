@@ -1,7 +1,7 @@
 class BitriseDenAgent < Formula
   desc "CLI for Bitrise DEN agent"
   homepage "https://github.com/bitrise-io/bitrise-den-agent"
-  license "MIT"
+  license ""
 
   on_macos do
     if Hardware::CPU.arm?
