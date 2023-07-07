@@ -1,7 +1,7 @@
 class BitriseDenAgent < Formula
   desc "CLI for Bitrise DEN agent"
   homepage "https://github.com/bitrise-io/bitrise-den-agent"
-  url "https://github.com/tailscale/tailscale.git",
+  url "https://github.com/bitrise-io/bitrise-den-agent",
       tag:      "v2.1.23",
       revision: "184157c231882b17a5a831a7020c86efa8964abe"
   license ""
