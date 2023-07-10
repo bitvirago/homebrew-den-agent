@@ -1,4 +1,4 @@
-class BitriseDenAgentATv2126 < Formula
+class BitriseDenAgent@v2126 < Formula
     desc "CLI for Bitrise DEN agent"
     homepage "https://github.com/bitrise-io/bitrise-den-agent"
     url "https://github.com/tailscale/tailscale.git",
