@@ -3,22 +3,22 @@
 module Homebrew
   module_function
 
-  def create_agent_service_args
+  def create_daemon_args
     Homebrew::CLI::Parser.new do
       description <<~EOS
-        Do something. Place a description here.
+        This tool generates a .plist file for the DEN agent, which is essential for the Bitrise DEN agent to function as a daemon.
       EOS
-      flag   "--bitrise_agent_intro_secret=",
-             description: "Specify a file to do something with in the command."
+      flag   "--bitrise-agent-intro-secret=",
+             description: "Bitrise DEN agent intro token."
     end
   end
 
-  def create_agent_service
-    args = create_agent_service_args.parse
+  def create_daemon
+    args = create_daemon_args.parse
 
     bitrise_agent_user_name = ENV["USER"]
     bitrise_agent_group_name = Etc.getgrgid(Process.gid).name
-    bitrise_agent_intro_secret = args.bitrise_agent_intro_secret
+    bitrise_agent_intro_secret = args.bitrise-agent-intro-secret
 
     plist_content = <<~EOS
                       <?xml version="1.0" encoding="UTF-8"?>
@@ -57,7 +57,6 @@ module Homebrew
                   EOS
     plist_path = "/Users/"+bitrise_agent_user_name+"/Library/LaunchDaemons/io.bitrise.self-hosted-agent.plist"
     FileUtils.mkdir_p(File.dirname(plist_path))
-    # Create and save the .plist file
     File.write(plist_path, plist_content)
   end
 end
