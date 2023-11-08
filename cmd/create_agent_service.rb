@@ -10,8 +10,6 @@ module Homebrew
       EOS
       flag   "--bitrise_agent_intro_secret=",
              description: "Specify a file to do something with in the command."
-
-      named_args [:formula, :cask], min: 1
     end
   end
 
