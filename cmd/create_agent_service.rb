@@ -55,12 +55,8 @@ module Homebrew
                         </dict>
                       </plist>
                   EOS
-    # Create and save the .plist file
-    plist_path = "/Users/otto.virag/Library/LaunchAgents/io.bitrise.self-hosted-agent.plist"
-    #       system "touch", "/Users/otto.virag/Library/LaunchAgents/io.bitrise.self-hosted-agent.plist"
-    #       puts "User: #{Process}"
-    #       puts "Group: #{Process.gid}"
-    #       FileUtils.mkdir_p(File.dirname(plist_path), :verbose => true)
+    plist_path = "/Users/"+bitrise_agent_user_name+"/Library/LaunchDaemons/io.bitrise.self-hosted-agent.plist"
+    FileUtils.mkdir_p(File.dirname(plist_path))
     # Create and save the .plist file
     File.write(plist_path, plist_content)
   end
