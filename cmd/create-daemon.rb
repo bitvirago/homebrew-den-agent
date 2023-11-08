@@ -18,7 +18,7 @@ module Homebrew
 
     bitrise_agent_user_name = ENV["USER"]
     bitrise_agent_group_name = Etc.getgrgid(Process.gid).name
-    bitrise_agent_intro_secret = args.bitrise-agent-intro-secret
+    bitrise_agent_intro_secret = args.bitrise_agent_intro_secret
 
     plist_content = <<~EOS
                       <?xml version="1.0" encoding="UTF-8"?>
