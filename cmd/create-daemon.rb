@@ -59,10 +59,7 @@ module Homebrew
     plist_template_file = "/opt/homebrew/io.bitrise.self-hosted-agent.plist"
     FileUtils.mkdir_p(File.dirname(plist_template_file))
     File.write(plist_template_file, plist_content)
-  end
-
-  def caveats
-      <<~EOS
+    puts  <<~EOS
         Plist template file is located in the following directory:
           #{plist_template_file}
 
