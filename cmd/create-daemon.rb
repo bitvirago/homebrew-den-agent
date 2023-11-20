@@ -62,13 +62,13 @@ module Homebrew
     puts  <<~EOS
         Plist template file is located in the following directory:
 
-          #{Tty.reset}"#{plist_template_file}#{Tty.reset}"
+          #{Tty.reset}#{plist_template_file}#{Tty.reset}
 
         For the daemon setup please run the following commands:
 
           #{Tty.bold}sudo chown root:wheel #{plist_template_file}
           sudo cp #{plist_template_file} #{plist_target_path}
-          sudo launchctl load -w #{plist_target_path}/io.bitrise.self-hosted-agent.plist#{Tty.reset}"
+          sudo launchctl load -w #{plist_target_path}/io.bitrise.self-hosted-agent.plist#{Tty.reset}
       EOS
   end
 end
