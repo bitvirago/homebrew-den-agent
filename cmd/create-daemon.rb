@@ -62,7 +62,7 @@ module Homebrew
     def caveats
         <<~EOS
           Plist template file is located in the following directory:
-          #{plist_template_file}
+            #{plist_template_file}
 
           For the daemon setup please run the following commands:
             sudo chown root:wheel #{plist_template_file}
