@@ -1,6 +1,5 @@
 # typed: strict
 # frozen_string_literal: true
-
 require "etc"
 require "fileutils"
 require "abstract_command"
@@ -20,27 +19,21 @@ module Homebrew
       def run
         # Parse arguments
         bitrise_agent_intro_secret = args.bitrise_agent_intro_secret
-
         # Get user info
         bitrise_agent_user_name = ENV["USER"]
         bitrise_agent_group_name = Etc.getgrgid(Process.gid).name
-
         # Create necessary directories
         create_symlink
         create_log_directory
-
         # Build command arguments dynamically
         command_args = "/opt/bitrise/bin/bitrise-den-agent connect --intro-secret #{bitrise_agent_intro_secret} --server https://exec.bitrise.io"
         command_args += " --fetch-latest-cli" if args.fetch_latest_cli
-
         # Create plist content
         plist_content = create_plist_content(command_args, bitrise_agent_user_name, bitrise_agent_group_name)
-
         # Write plist to file
         plist_template_file = "/opt/homebrew/io.bitrise.self-hosted-agent.plist"
         FileUtils.mkdir_p(File.dirname(plist_template_file))
         File.write(plist_template_file, plist_content)
-
         # Output instructions
         output_instructions(plist_template_file, bitrise_agent_user_name)
       end
@@ -58,15 +51,23 @@ module Homebrew
         if File.exist?(symlink_location)
           puts "Symlink already exists: #{symlink_location}"
         else
-          File.symlink(symlink_target, symlink_location)
-          puts "Symlink created: #{symlink_location} -> #{symlink_target}"
+          begin
+            File.symlink(symlink_target, symlink_location)
+            puts "Symlink created: #{symlink_location} -> #{symlink_target}"
+          rescue Errno::EACCES => e
+            puts "Permission denied, cannot create symlink: #{e.message}"
+          end
         end
       end
 
       # Create the log directory
       def create_log_directory
         log_path = "/opt/bitrise/var/log"
-        FileUtils.mkdir_p(log_path) unless Dir.exist?(log_path)
+        begin
+          FileUtils.mkdir_p(log_path) unless Dir.exist?(log_path)
+        rescue Errno::EACCES => e
+          puts "Permission denied, cannot create log directory: #{e.message}"
+        end
       end
 
       # Create plist content
