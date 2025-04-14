@@ -149,9 +149,9 @@ module Homebrew
       def output_instructions(plist_template_file, user_name)
         plist_target_path = "/Users/#{user_name}/Library/LaunchDaemons"
         puts <<~EOS
-          Plist template file is located in the following directory:
+          #{Tty.blue}Plist template file is located in the following directory:#{Tty.reset}
             #{Tty.bold}#{plist_template_file}#{Tty.reset}
-          For the daemon setup please run the following commands:
+          #{Tty.blue}For the daemon setup please run the following commands:#{Tty.reset}
             #{Tty.bold}sudo mkdir -p #{plist_target_path}
             sudo chown root:wheel #{plist_target_path}
             sudo cp #{plist_template_file} #{plist_target_path}
