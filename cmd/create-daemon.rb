@@ -50,9 +50,11 @@ module Homebrew
 
         # Check if the target file (the actual binary) exists
         unless File.exist?(symlink_target)
-            puts "The target file '#{symlink_target}' does not exist."
-            puts "Hint: Please ensure that the Bitrise DEN agent is installed by running the command:"
-            puts "brew install bitrise-den-agent"
+            puts <<~EOS
+              The target file '#{symlink_target}' does not exist.
+              Hint: Please ensure that the Bitrise DEN agent is installed by running the command:
+                #{Tty.bold}brew install bitrise-den-agent#{Tty.reset}
+            EOS
             return
         end
 
@@ -63,14 +65,18 @@ module Homebrew
             File.symlink(symlink_target, symlink_location)
             puts "Symlink created: #{symlink_location} -> #{symlink_target}"
           rescue Errno::EACCES => e
-               puts "Permission denied, cannot create symlink: #{e.message}"
-               puts "Hint: You can create the symlink manually using the following command:"
-               puts "#{Tty.bold}sudo ln -s #{symlink_target} #{symlink_location}#{Tty.reset}"
-               puts "Additionally, make sure the target directory exists and has the correct permissions."
+            puts <<~EOS
+              Permission denied, cannot create symlink: #{e.message}
+              Hint: You can create the symlink manually using the following command:
+                #{Tty.bold}sudo ln -s #{symlink_target} #{symlink_location}#{Tty.reset}
+              Additionally, make sure the target directory exists and has the correct permissions.
+            EOS
           rescue Errno::ENOENT => e
-            puts "The target file '#{symlink_target}' does not exist."
-            puts "Please ensure that the Bitrise DEN agent is installed by running the command:"
-            puts "#{Tty.bold}brew install bitrise-den-agent#{Tty.reset}"
+            puts <<~EOS
+              The target file '#{symlink_target}' does not exist.
+              Please ensure that the Bitrise DEN agent is installed by running the command:
+                #{Tty.bold}brew install bitrise-den-agent#{Tty.reset}
+            EOS
           end
         end
       end
@@ -81,10 +87,12 @@ module Homebrew
         begin
           FileUtils.mkdir_p(log_path) unless Dir.exist?(log_path)
         rescue Errno::EACCES => e
-          puts "Permission denied, cannot create log directory: #{e.message}"
-          puts "Hint: Please manually create the /opt/bitrise/var directory and set the appropriate permissions. Run the following command"
-          puts "#{Tty.bold}sudo mkdir -p /opt/bitrise/var"
-          puts "sudo chmod 775 /opt/bitrise/var#{Tty.reset}"
+          puts <<~EOS
+            Permission denied, cannot create log directory: #{e.message}
+            Hint: Please manually create the /opt/bitrise/var directory and set the appropriate permissions. Run the following command
+              #{Tty.bold}sudo mkdir -p /opt/bitrise/var
+              sudo chmod 775 /opt/bitrise/var#{Tty.reset}
+          EOS
         end
       end
 
