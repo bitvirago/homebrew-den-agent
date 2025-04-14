@@ -43,10 +43,18 @@ module Homebrew
       # Create symlink for the binary
       def create_symlink
         bin_path = "/opt/bitrise/bin"
-        FileUtils.mkdir_p(bin_path) unless Dir.exist?(bin_path)
-
         symlink_target = "/opt/homebrew/bin/bitrise-den-agent"
         symlink_location = "#{bin_path}/bitrise-den-agent"
+
+        FileUtils.mkdir_p(bin_path) unless Dir.exist?(bin_path)
+
+        # Check if the target file (the actual binary) exists
+        unless File.exist?(target_file)
+            puts "The target file '#{target_file}' does not exist."
+            puts "Hint: Please ensure that the Bitrise DEN agent is installed by running the command:"
+            puts "brew install bitrise-den-agent"
+            return
+        end
 
         if File.exist?(symlink_location)
           puts "Symlink already exists: #{symlink_location}"
