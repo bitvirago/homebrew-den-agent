@@ -65,12 +65,12 @@ module Homebrew
           rescue Errno::EACCES => e
                puts "Permission denied, cannot create symlink: #{e.message}"
                puts "Hint: You can create the symlink manually using the following command:"
-               puts "sudo ln -s #{symlink_target} #{symlink_location}"
+               puts "#{Tty.bold}sudo ln -s #{symlink_target} #{symlink_location}#{Tty.reset}"
                puts "Additionally, make sure the target directory exists and has the correct permissions."
           rescue Errno::ENOENT => e
             puts "The target file '#{symlink_target}' does not exist."
             puts "Please ensure that the Bitrise DEN agent is installed by running the command:"
-            puts "brew install bitrise-den-agent"
+            puts "#{Tty.bold}brew install bitrise-den-agent#{Tty.reset}"
           end
         end
       end
@@ -83,8 +83,8 @@ module Homebrew
         rescue Errno::EACCES => e
           puts "Permission denied, cannot create log directory: #{e.message}"
           puts "Hint: Please manually create the /opt/bitrise/var directory and set the appropriate permissions. Run the following command"
-          puts "sudo mkdir -p /opt/bitrise/var"
-          puts "sudo chmod 775 /opt/bitrise/var"
+          puts "#{Tty.bold}sudo mkdir -p /opt/bitrise/var"
+          puts "sudo chmod 775 /opt/bitrise/var#{Tty.reset}"
         end
       end
 
