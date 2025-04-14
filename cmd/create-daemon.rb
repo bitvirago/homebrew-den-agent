@@ -59,6 +59,10 @@ module Homebrew
                puts "Hint: You can create the symlink manually using the following command:"
                puts "sudo ln -s #{symlink_target} #{symlink_location}"
                puts "Additionally, make sure the target directory exists and has the correct permissions."
+          rescue Errno::ENOENT => e
+            puts "The target file '#{symlink_target}' does not exist."
+            puts "Please ensure that the Bitrise DEN agent is installed by running the command:"
+            puts "brew install bitrise-den-agent"
           end
         end
       end
