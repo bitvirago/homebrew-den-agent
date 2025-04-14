@@ -12,6 +12,8 @@ module Homebrew
         description <<~EOS
           This tool generates a .plist file for the DEN agent,
           which is essential for the Bitrise DEN agent to function as a daemon.
+          If you provide the --fetch-latest-cli flag, the update process will
+          use the bitrise-den-agent command rather than Homebrew.
         EOS
         flag "--bitrise-agent-intro-secret=", description: "Bitrise DEN agent intro token."
         flag "--fetch-latest-cli", description: "If provided, adds '--fetch-latest-cli' to the bitrise-den-agent command."
@@ -28,9 +30,13 @@ module Homebrew
         # Create necessary directories
         create_required_directories
 
-        # Copy the binary
-        unless copy_binary
-          return # Abort if copying the binary failed
+        # Copy or create symlink for the binary based on the flag
+        if args.fetch_latest_cli
+          unless copy_binary
+            return # Abort if copying the binary failed
+          end
+        else
+          create_symlink
         end
 
         # Build command arguments dynamically
@@ -67,6 +73,22 @@ module Homebrew
             puts "#{Tty.blue}Hint: Please manually create the directory and set the appropriate permissions.#{Tty.reset}"
             puts "#{Tty.green}Example command: #{Tty.bold}sudo mkdir -p #{dir}#{Tty.reset}"
           end
+        end
+      end
+
+      # Create symlink for the binary
+      def create_symlink
+        bin_path = "/opt/bitrise/bin"
+        FileUtils.mkdir_p(bin_path) unless Dir.exist?(bin_path)
+
+        symlink_target = "/opt/homebrew/bin/bitrise-den-agent"
+        symlink_location = "#{bin_path}/bitrise-den-agent"
+
+        if File.exist?(symlink_location)
+          puts "Symlink already exists: #{symlink_location}"
+        else
+          File.symlink(symlink_target, symlink_location)
+          puts "Symlink created: #{symlink_location} -> #{symlink_target}"
         end
       end
 
@@ -150,13 +172,13 @@ module Homebrew
         plist_target_path = "/Users/#{user_name}/Library/LaunchDaemons"
         puts <<~EOS
           #{Tty.blue}Plist template file is located in the following directory:#{Tty.reset}
-            #{Tty.bold}#{plist_template_file}#{Tty.reset}
+              #{Tty.bold}#{plist_template_file}#{Tty.reset}
           #{Tty.blue}For the daemon setup please run the following commands:#{Tty.reset}
-            #{Tty.bold}sudo mkdir -p #{plist_target_path}
-            sudo chown root:wheel #{plist_target_path}
-            sudo cp #{plist_template_file} #{plist_target_path}
-            sudo chown root:wheel #{plist_target_path}/io.bitrise.self-hosted-agent.plist
-            sudo launchctl load -w #{plist_target_path}/io.bitrise.self-hosted-agent.plist#{Tty.reset}
+              #{Tty.bold}sudo mkdir -p #{plist_target_path}
+              sudo chown root:wheel #{plist_target_path}
+              sudo cp #{plist_template_file} #{plist_target_path}
+              sudo chown root:wheel #{plist_target_path}/io.bitrise.self-hosted-agent.plist
+              sudo launchctl load -w #{plist_target_path}/io.bitrise.self-hosted-agent.plist#{Tty.reset}
         EOS
       end
     end
