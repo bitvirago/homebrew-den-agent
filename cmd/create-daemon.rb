@@ -55,7 +55,10 @@ module Homebrew
             File.symlink(symlink_target, symlink_location)
             puts "Symlink created: #{symlink_location} -> #{symlink_target}"
           rescue Errno::EACCES => e
-            puts "Permission denied, cannot create symlink: #{e.message}"
+               puts "Permission denied, cannot create symlink: #{e.message}"
+               puts "Hint: You can create the symlink manually using the following command:"
+               puts "sudo ln -s #{symlink_target} #{symlink_location}"
+               puts "Additionally, make sure the target directory exists and has the correct permissions."
           end
         end
       end
@@ -67,6 +70,9 @@ module Homebrew
           FileUtils.mkdir_p(log_path) unless Dir.exist?(log_path)
         rescue Errno::EACCES => e
           puts "Permission denied, cannot create log directory: #{e.message}"
+          puts "Hint: Please manually create the /opt/bitrise/var directory and set the appropriate permissions. Run the following command"
+          puts "sudo mkdir -p /opt/bitrise/var"
+          puts "sudo chmod 775 /opt/bitrise/var"
         end
       end
 
