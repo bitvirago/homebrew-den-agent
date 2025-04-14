@@ -82,7 +82,7 @@ module Homebrew
               <key>EnvironmentVariables</key>
               <dict>
                 <key>PATH</key>
-                <string>/usr/local/bin:/usr/bin/:/bin/:/opt/bitrise/bin:/opt/homebrew/bin</string>
+                <string>/usr/local/bin:/usr/bin/:/bin/:/opt/homebrew/bin:/opt/bitrise/bin</string>
               </dict>
               <key>ProgramArguments</key>
               <array>
