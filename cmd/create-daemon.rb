@@ -1,5 +1,4 @@
-# typed: strict
-# frozen_string_literal: true
+# typed: strict # frozen_string_literal: true
 
 require "etc"
 require "fileutils"
@@ -30,13 +29,19 @@ module Homebrew
         # Create necessary directories
         create_required_directories
 
+        bin_path = "/opt/bitrise/bin"
+        agent_path = "#{bin_path}/bitrise-den-agent"
+        binary_source = "/opt/homebrew/bin/bitrise-den-agent"
+        # Delete the existing agent file if it exists before copying
+        File.delete(agent_path) if File.exist?(agent_path)
         # Copy or create symlink for the binary based on the flag
         if args.fetch_latest_cli
-          unless copy_binary
+          unless copy_binary(agent_path, binary_source)
             return # Abort if copying the binary failed
           end
         else
-          create_symlink
+          # If not fetching the latest, create the symlink
+          create_symlink(agent_path, binary_source) unless File.symlink?(agent_path)
         end
 
         # Build command arguments dynamically
@@ -77,27 +82,23 @@ module Homebrew
       end
 
       # Create symlink for the binary
-      def create_symlink
+      def create_symlink(agent_path, binary_source)
         bin_path = "/opt/bitrise/bin"
         FileUtils.mkdir_p(bin_path) unless Dir.exist?(bin_path)
 
-        symlink_target = "/opt/homebrew/bin/bitrise-den-agent"
-        symlink_location = "#{bin_path}/bitrise-den-agent"
+        symlink_target = binary_source
 
-        if File.exist?(symlink_location)
-          puts "Symlink already exists: #{symlink_location}"
-        else
-          File.symlink(symlink_target, symlink_location)
-          puts "Symlink created: #{symlink_location} -> #{symlink_target}"
+        if File.exist?(agent_path)
+          puts "Binary already exists, removing the old file: #{agent_path}"
+          File.delete(agent_path)  # Remove the existing binary before creating the symlink
         end
+
+        File.symlink(symlink_target, agent_path)
+        puts "Symlink created: #{agent_path} -> #{symlink_target}"
       end
 
       # Copy the binary
-      def copy_binary
-        bin_path = "/opt/bitrise/bin"
-        binary_source = "/opt/homebrew/bin/bitrise-den-agent"
-        binary_destination = "#{bin_path}/bitrise-den-agent"
-
+      def copy_binary(agent_path, binary_source)
         # Check if the source file (the actual binary) exists
         unless File.exist?(binary_source)
           puts "#{Tty.red}The source file '#{binary_source}' does not exist.#{Tty.reset}"
@@ -108,15 +109,15 @@ module Homebrew
 
         begin
           # Copy the binary, overwriting if it exists
-          FileUtils.cp(binary_source, binary_destination)
+          FileUtils.cp(binary_source, agent_path)
           # Set read and write permissions for the owner and group
-          File.chmod(0755, binary_destination)  # rwxr-xr-x
-          puts "Binary copied (overwritten): #{binary_destination}"
+          File.chmod(0755, agent_path)  # rwxr-xr-x
+          puts "Binary copied (overwritten): #{agent_path}"
           return true
         rescue Errno::EACCES => e
           puts "#{Tty.red}Permission denied, cannot copy binary: #{e.message}#{Tty.reset}"
           puts "#{Tty.blue}Hint: You can copy the binary manually using the following command:#{Tty.reset}"
-          puts "#{Tty.green}  #{Tty.bold}sudo cp #{binary_source} #{binary_destination}#{Tty.reset}"
+          puts "#{Tty.green}  #{Tty.bold}sudo cp #{binary_source} #{agent_path}#{Tty.reset}"
           puts "#{Tty.red}Additionally, make sure the target directory exists and has the correct permissions.#{Tty.reset}"
           return false
         rescue Errno::ENOENT => e
