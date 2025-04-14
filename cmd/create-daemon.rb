@@ -49,8 +49,8 @@ module Homebrew
         FileUtils.mkdir_p(bin_path) unless Dir.exist?(bin_path)
 
         # Check if the target file (the actual binary) exists
-        unless File.exist?(target_file)
-            puts "The target file '#{target_file}' does not exist."
+        unless File.exist?(symlink_target)
+            puts "The target file '#{symlink_target}' does not exist."
             puts "Hint: Please ensure that the Bitrise DEN agent is installed by running the command:"
             puts "brew install bitrise-den-agent"
             return
