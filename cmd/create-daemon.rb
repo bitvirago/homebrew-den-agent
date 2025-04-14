@@ -29,7 +29,9 @@ module Homebrew
         create_required_directories
 
         # Copy the binary
-        copy_binary
+        unless copy_binary
+          return # Abort if copying the binary failed
+        end
 
         # Build command arguments dynamically
         command_args = "/opt/bitrise/bin/bitrise-den-agent connect --intro-secret #{bitrise_agent_intro_secret} --server https://exec.bitrise.io"
@@ -43,7 +45,7 @@ module Homebrew
         FileUtils.mkdir_p(File.dirname(plist_template_file)) # Ensure the directory for the plist exists
         File.write(plist_template_file, plist_content)
 
-        # Output instructions
+        # Output instructions only if there were no errors
         output_instructions(plist_template_file, bitrise_agent_user_name)
       end
 
@@ -61,11 +63,9 @@ module Homebrew
           begin
             FileUtils.mkdir_p(dir)
           rescue Errno::EACCES => e
-            puts <<~EOS
-              Permission denied, cannot create directory '#{dir}': #{e.message}
-              Hint: Please manually create the directory and set the appropriate permissions.
-              Example command: #{Tty.bold}sudo mkdir -p #{dir}#{Tty.reset}
-            EOS
+            puts "#{Tty.red}Permission denied, cannot create directory '#{dir}': #{e.message}#{Tty.reset}"
+            puts "#{Tty.blue}Hint: Please manually create the directory and set the appropriate permissions.#{Tty.reset}"
+            puts "#{Tty.green}Example command: #{Tty.bold}sudo mkdir -p #{dir}#{Tty.reset}"
           end
         end
       end
@@ -78,12 +78,10 @@ module Homebrew
 
         # Check if the source file (the actual binary) exists
         unless File.exist?(binary_source)
-          puts <<~EOS
-            The source file '#{binary_source}' does not exist.
-            Hint: Please ensure that the Bitrise DEN agent is installed by running the command:
-              #{Tty.bold}brew install bitrise-den-agent#{Tty.reset}
-          EOS
-          return
+          puts "#{Tty.red}The source file '#{binary_source}' does not exist.#{Tty.reset}"
+          puts "#{Tty.blue}Hint: Please ensure that the Bitrise DEN agent is installed by running the command:#{Tty.reset}"
+          puts "  brew install bitrise-den-agent"
+          return false
         end
 
         begin
@@ -92,19 +90,18 @@ module Homebrew
           # Set read and write permissions for the owner and group
           File.chmod(0755, binary_destination)  # rwxr-xr-x
           puts "Binary copied (overwritten): #{binary_destination}"
+          return true
         rescue Errno::EACCES => e
-          puts <<~EOS
-            Permission denied, cannot copy binary: #{e.message}
-            Hint: You can copy the binary manually using the following command:
-              #{Tty.bold}sudo cp #{binary_source} #{binary_destination}#{Tty.reset}
-            Additionally, make sure the target directory exists and has the correct permissions.
-          EOS
+          puts "#{Tty.red}Permission denied, cannot copy binary: #{e.message}#{Tty.reset}"
+          puts "#{Tty.blue}Hint: You can copy the binary manually using the following command:#{Tty.reset}"
+          puts "#{Tty.green}  #{Tty.bold}sudo cp #{binary_source} #{binary_destination}#{Tty.reset}"
+          puts "#{Tty.red}Additionally, make sure the target directory exists and has the correct permissions.#{Tty.reset}"
+          return false
         rescue Errno::ENOENT => e
-          puts <<~EOS
-            The source file '#{binary_source}' does not exist.
-            Please ensure that the Bitrise DEN agent is installed by running the command:
-              #{Tty.bold}brew install bitrise-den-agent#{Tty.reset}
-          EOS
+          puts "#{Tty.red}The source file '#{binary_source}' does not exist.#{Tty.reset}"
+          puts "#{Tty.blue}Please ensure that the Bitrise DEN agent is installed by running the command:#{Tty.reset}"
+          puts "  brew install bitrise-den-agent"
+          return false
         end
       end
 
