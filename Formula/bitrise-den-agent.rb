@@ -34,6 +34,10 @@ class BitriseDenAgent < Formula
     (bin/"create_bitrise_daemon.sh").write <<~'EOS'
       #!/bin/bash
       set -euo pipefail
+      if [ "$EUID" -ne 0 ]; then
+        echo "Error: This script must be run with sudo or as root."
+        exit 1
+      fi
 
       BIN_PATH="/opt/bitrise/bin"
       AGENT_PATH="$BIN_PATH/bitrise-den-agent"
@@ -77,8 +81,8 @@ class BitriseDenAgent < Formula
         usage
       fi
 
-      USER_NAME=$(id -un)
-      GROUP_NAME=$(id -gn)
+      USER_NAME="$SUDO_USER"
+      GROUP_NAME=$(id -gn "$SUDO_USER")
 
       create_directories() {
         local dirs=(
@@ -91,10 +95,7 @@ class BitriseDenAgent < Formula
           if [[ ! -d "$dir" ]]; then
             echo "Creating directory $dir"
             if ! mkdir -p "$dir"; then
-              echo "Permission denied, cannot create directory '$dir'."
-              echo "Please create it manually and set appropriate permissions (you may need sudo)."
-              echo "Example:"
-              echo "  sudo mkdir -p $dir"
+              echo "Cannot create directory '$dir'."
               exit 1
             fi
           fi
@@ -115,8 +116,6 @@ class BitriseDenAgent < Formula
       copy_binary() {
         if [[ ! -f "$BINARY_SOURCE" ]]; then
           echo "The source binary '$BINARY_SOURCE' does not exist."
-          echo "Please install bitrise-den-agent with Homebrew:"
-          echo "  brew install bitrise-den-agent"
           exit 1
         fi
 
@@ -126,9 +125,7 @@ class BitriseDenAgent < Formula
         fi
 
         if ! cp "$BINARY_SOURCE" "$AGENT_PATH"; then
-          echo "Permission denied when copying the binary."
-          echo "You may need to run:"
-          echo "  sudo cp $BINARY_SOURCE $AGENT_PATH"
+          echo "Cannot copy the binary."
           exit 1
         fi
 
@@ -186,12 +183,12 @@ class BitriseDenAgent < Formula
       echo "Plist generated at: $PLIST_TEMPLATE_FILE"
 
       install_daemon() {
-        echo "Installing daemon plist with sudo..."
-        sudo mkdir -p "${PLIST_TARGET_DIR}"
-        sudo chown root:wheel "${PLIST_TARGET_DIR}"
-        sudo cp "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
-        sudo chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
-        sudo launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
+        echo "Installing daemon plist..."
+        mkdir -p "${PLIST_TARGET_DIR}"
+        chown root:wheel "${PLIST_TARGET_DIR}"
+        cp "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
+        chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
+        launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
         echo "Daemon plist installed and loaded."
       }
 
