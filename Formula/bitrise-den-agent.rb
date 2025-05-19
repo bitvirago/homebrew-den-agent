@@ -198,7 +198,7 @@ class BitriseDenAgent < Formula
       install_daemon
     EOS
 
-    chmod 0755 bin/"create_bitrise_daemon.sh"
+    chmod 0755, bin/"create_bitrise_daemon.sh"
   end
 
   test do
