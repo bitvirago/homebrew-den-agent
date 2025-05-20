@@ -98,7 +98,7 @@ class BitriseDenAgent < Formula
               echo "Cannot create directory '$dir'."
               exit 1
             fi
-            chown -R $(USER_NAME):$(GROUP_NAME) $dir
+            chown -R "${USER_NAME}:${GROUP_NAME}" "$dir"
           fi
         done
       }
