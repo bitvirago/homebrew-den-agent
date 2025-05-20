@@ -93,14 +93,18 @@ class BitriseDenAgent < Formula
         )
 
         for dir in "${dirs[@]}"; do
+          echo "Checking directory $dir"
           if [[ ! -d "$dir" ]]; then
             echo "Creating directory $dir"
             if ! mkdir -p "$dir"; then
               echo "Cannot create directory '$dir'."
               exit 1
             fi
-            chown -R "${USER_NAME}:${GROUP_NAME}" "$dir"
+          else
+              echo "Directory $dir already exists."
           fi
+          echo "Changing ownership to ${USER_NAME}:${GROUP_NAME}"
+          chown "${USER_NAME}:${GROUP_NAME}" "$dir"
         done
       }
 
@@ -192,7 +196,7 @@ class BitriseDenAgent < Formula
         chown root:wheel "${PLIST_TARGET_DIR}"
         mv "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
         chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
-        echo "launchctl load -w $PLIST_TARGET_FILE"
+        echo "launchctl load -w ${PLIST_TARGET_DIR}/${PLIST_NAME}"
         launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
         echo "Daemon plist installed and loaded."
       }
