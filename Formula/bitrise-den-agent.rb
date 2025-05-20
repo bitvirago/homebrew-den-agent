@@ -44,6 +44,7 @@ class BitriseDenAgent < Formula
       BINARY_SOURCE="/opt/homebrew/bin/bitrise-den-agent"
       LOG_PATH="/opt/bitrise/var/log"
       PLIST_TARGET_FILE="/Library/LaunchDaemons/io.bitrise.self-hosted-agent.plist"
+      PLIST_TARGET_DIR="/Library/LaunchDaemons"
 
       usage() {
         echo "Usage: $0 --bitrise-agent-intro-secret=SECRET [--fetch-latest-cli]"
@@ -183,6 +184,11 @@ class BitriseDenAgent < Formula
 
       install_daemon() {
         echo "Installing daemon plist..."
+        echo "mkdir -p $PLIST_TARGET_DIR"
+        mkdir -p "${PLIST_TARGET_DIR}"
+        echo "chown root:wheel $PLIST_TARGET_DIR"
+        chown root:wheel "${PLIST_TARGET_DIR}"
+        echo "launchctl load -w $PLIST_TARGET_FILE"
         launchctl load -w "${PLIST_TARGET_FILE}"
         echo "Daemon plist installed and loaded."
       }
