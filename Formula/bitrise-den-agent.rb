@@ -1,30 +1,28 @@
 class BitriseDenAgent < Formula
   desc "CLI for Bitrise DEN agent + daemon-creation helper script"
   homepage "https://github.com/bitrise-io/bitrise-den-agent"
-
-  # This is tricky: Need a single URL/source for the main binary, script embedded
-  version "2.15.0"
+  url "https://github.com/bitrise-io/bitrise-den-agent.git",
+    tag:      "v2.52.5",
+    revision: "0a68312bbaa7801bffdff8720dc2cd4386e7c61c"
+  license ""
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.15.0/bitrise-den-agent-darwin-arm64.zip"
-      sha256 "9e36daa6c66a1043dd91f94f4a865cf1fa13951be6e3e0285a3d10864975befd"
+      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.52.5/bitrise-den-agent-darwin-arm64.zip"
+      sha256 "9feb18d6ea3a031b0400053ad557adc7180932ca39f956536db2fc2bf78029fb"
     end
-
     if Hardware::CPU.intel?
-      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.15.0/bitrise-den-agent-darwin-amd64.zip"
-      sha256 "788faebabc240dcc1f04d180c8184b8555587f82245a392a0a9fee69aa066ef0"
+      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.52.5/bitrise-den-agent-darwin-amd64.zip"
+      sha256 "f905c37c1069954e7320b3cfca4b66c74ee5746c1f84d243058ad56851e9dfb7"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.15.0/bitrise-den-agent-linux-amd64.zip"
-      sha256 "42c5f85b9516e83e6208f8c1c77b407de1355e00f681885d67632423fa8108df"
+      url "https://github.com/bitrise-io/bitrise-den-agent/releases/download/v2.52.5/bitrise-den-agent-linux-amd64.zip"
+      sha256 "278ba51e226d445104dd1619740ee4930469960bb1706ad965984f7e4a47a8f5"
     end
   end
-
-  license "" # add license info if known
 
   def install
     # Install the main binary
@@ -190,13 +188,15 @@ class BitriseDenAgent < Formula
 
       install_daemon() {
         echo "Installing daemon plist..."
-        echo "mkdir -p $PLIST_TARGET_DIR"
+        echo "Creating directory $PLIST_TARGET_DIR"
         mkdir -p "${PLIST_TARGET_DIR}"
-        echo "chown root:wheel $PLIST_TARGET_DIR"
+        echo "Changing ownership $PLIST_TARGET_DIR dir"
         chown root:wheel "${PLIST_TARGET_DIR}"
+        echo "Move file from $PLIST_TEMPLATE_FILE to $PLIST_TARGET_DIR"
         mv "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
+        echo "Changing ownership ${PLIST_TARGET_DIR}/${PLIST_NAME} file"
         chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
-        echo "launchctl load -w ${PLIST_TARGET_DIR}/${PLIST_NAME}"
+        echo "Load daemon ${PLIST_TARGET_DIR}/${PLIST_NAME}"
         launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
         echo "Daemon plist installed and loaded."
       }
