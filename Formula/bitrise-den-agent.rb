@@ -42,10 +42,8 @@ class BitriseDenAgent < Formula
       BIN_PATH="/opt/bitrise/bin"
       AGENT_PATH="$BIN_PATH/bitrise-den-agent"
       BINARY_SOURCE="/opt/homebrew/bin/bitrise-den-agent"
-      PLIST_TEMPLATE_FILE="/opt/homebrew/io.bitrise.self-hosted-agent.plist"
       LOG_PATH="/opt/bitrise/var/log"
-      PLIST_TARGET_DIR="/Library/LaunchDaemons"
-      PLIST_NAME="io.bitrise.self-hosted-agent.plist"
+      PLIST_TARGET_FILE="/Library/LaunchDaemons/io.bitrise.self-hosted-agent.plist"
 
       usage() {
         echo "Usage: $0 --bitrise-agent-intro-secret=SECRET [--fetch-latest-cli]"
@@ -145,7 +143,7 @@ class BitriseDenAgent < Formula
         COMMAND_ARGS+=" --fetch-latest-cli"
       fi
 
-      cat > "$PLIST_TEMPLATE_FILE" <<EOF
+      cat > "$PLIST_TARGET_FILE" <<EOF
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
@@ -181,15 +179,11 @@ class BitriseDenAgent < Formula
       </plist>
       EOF
 
-      echo "Plist generated at: $PLIST_TEMPLATE_FILE"
+      echo "Plist generated at: $PLIST_TARGET_FILE"
 
       install_daemon() {
         echo "Installing daemon plist..."
-        mkdir -p "${PLIST_TARGET_DIR}"
-        chown root:wheel "${PLIST_TARGET_DIR}"
-        cp "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
-        chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
-        launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
+        launchctl load -w "${PLIST_TARGET_FILE}"
         echo "Daemon plist installed and loaded."
       }
 
