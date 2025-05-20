@@ -39,12 +39,16 @@ class BitriseDenAgent < Formula
         exit 1
       fi
 
+      USER_NAME="$SUDO_USER"
+      GROUP_NAME=$(id -gn "$SUDO_USER")
+
       BIN_PATH="/opt/bitrise/bin"
       AGENT_PATH="$BIN_PATH/bitrise-den-agent"
       BINARY_SOURCE="/opt/homebrew/bin/bitrise-den-agent"
+      PLIST_TEMPLATE_FILE="/opt/homebrew/io.bitrise.self-hosted-agent.plist"
       LOG_PATH="/opt/bitrise/var/log"
-      PLIST_TARGET_FILE="/Library/LaunchDaemons/io.bitrise.self-hosted-agent.plist"
-      PLIST_TARGET_DIR="/Library/LaunchDaemons"
+      PLIST_TARGET_DIR="/Users/${USER_NAME}/Library/LaunchDaemons"
+      PLIST_NAME="io.bitrise.self-hosted-agent.plist"
 
       usage() {
         echo "Usage: $0 --bitrise-agent-intro-secret=SECRET [--fetch-latest-cli]"
@@ -80,11 +84,9 @@ class BitriseDenAgent < Formula
         usage
       fi
 
-      USER_NAME="$SUDO_USER"
-      GROUP_NAME=$(id -gn "$SUDO_USER")
-
       create_directories() {
         local dirs=(
+          "/opt/bitrise/var"
           "/opt/bitrise/var/log"
           "/opt/bitrise/releases"
           "/opt/bitrise/bin"
@@ -144,7 +146,7 @@ class BitriseDenAgent < Formula
         COMMAND_ARGS+=" --fetch-latest-cli"
       fi
 
-      cat > "$PLIST_TARGET_FILE" <<EOF
+      cat > "$PLIST_TEMPLATE_FILE" <<EOF
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
@@ -180,7 +182,7 @@ class BitriseDenAgent < Formula
       </plist>
       EOF
 
-      echo "Plist generated at: $PLIST_TARGET_FILE"
+      echo "Plist generated at: $PLIST_TEMPLATE_FILE"
 
       install_daemon() {
         echo "Installing daemon plist..."
@@ -188,8 +190,10 @@ class BitriseDenAgent < Formula
         mkdir -p "${PLIST_TARGET_DIR}"
         echo "chown root:wheel $PLIST_TARGET_DIR"
         chown root:wheel "${PLIST_TARGET_DIR}"
+        mv "${PLIST_TEMPLATE_FILE}" "${PLIST_TARGET_DIR}/"
+        chown root:wheel "${PLIST_TARGET_DIR}/${PLIST_NAME}"
         echo "launchctl load -w $PLIST_TARGET_FILE"
-        launchctl load -w "${PLIST_TARGET_FILE}"
+        launchctl load -w "${PLIST_TARGET_DIR}/${PLIST_NAME}"
         echo "Daemon plist installed and loaded."
       }
 
